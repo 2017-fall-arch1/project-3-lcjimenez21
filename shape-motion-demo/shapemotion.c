@@ -23,7 +23,7 @@ int colorBall , colorScoreBoard, bg;
 Region player1Fence;
 Region player2Fence;
 
-AbRect rect10 = {abRectGetBounds, abRectCheck, {1,13}}; /**< 10x10 rectangle */
+AbRect rect10 = {abRectGetBounds, abRectCheck, {1,13}}; /**< 1x13 rectangle */
 
 AbRectOutline fieldOutline = {	/* playing field */
   abRectOutlineGetBounds, abRectOutlineCheck,   
@@ -33,10 +33,10 @@ AbRectOutline fieldOutline = {	/* playing field */
 
 
 
-Layer gameBall = {		/**< Layer with an orange circle */
+Layer gameBall = {		/**< Layer for the gameBall */
   (AbShape *)&circle2,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
-  {0,0}, {0,0},				    /* last & next pos */
+  {(screenWidth/2)+10, (screenHeight/2)+5}, 
+  {0,0}, {0,0},				    
   COLOR_GREEN,
   0,
 };
@@ -45,7 +45,7 @@ Layer gameBall = {		/**< Layer with an orange circle */
 Layer fieldLayer = {		/* playing field as a layer */
   (AbShape *) &fieldOutline,
   {screenWidth/2, screenHeight/2},/**< center */
-  {0,0}, {0,0},				    /* last & next pos */
+  {0,0}, {0,0},				    
   COLOR_WHITE,
   &gameBall
 };
@@ -151,7 +151,7 @@ void mlAdvance(MovLayer *ml, Region *fence)
       }	/**< if outside of fence */
       
       if(shapeBoundary.botRight.axes[axis] > fence->botRight.axes[axis]){
-        newPos.axes[axis] -= 2;
+        newPos.axes[axis] -= 3;
       }
     } /**< for axis */
     ml->layer->posNext = newPos;
@@ -192,7 +192,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
                 WDTCTL =0;
             }
             goalPlay();
-            drawString5x7(50,50, "GOAL", COLOR_GREEN, COLOR_BLACK);
+            drawString5x7(50,50, "GOAL", colorScoreBoard, bg);
             __delay_cycles(15000000);
             break;
       }
@@ -207,7 +207,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
               WDTCTL=0;
           }
           goalPlay();
-          drawString5x7(50,50, "GOAL", COLOR_GREEN, COLOR_BLACK);
+          drawString5x7(50,50, "GOAL", colorScoreBoard, bg);
           __delay_cycles(15000000);
           break;
       }
@@ -259,8 +259,8 @@ void mainMenu(){
     drawString5x7(25,60, "P2 controls", COLOR_BLACK, COLOR_WHITE); 
     drawString5x7(15,70, "S3 Up, S4 Down", COLOR_BLACK, COLOR_WHITE);
     drawString5x7(5,90, "Select Theme:", COLOR_BLACK, COLOR_WHITE);
-    drawString5x7(5,110, "S1(B/W) S2(Mid)", COLOR_BLACK, COLOR_WHITE);
-    drawString5x7(5,125, "S3(Old)", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,110, "S1(B/W) S2(UTEP)", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,125, "S3(Soccer)", COLOR_BLACK, COLOR_WHITE);
     drawString5x7(15,140, "Press S4 to Start", COLOR_BLACK, COLOR_WHITE);
     while(a){
         swSD1 = (P2IN & BIT0) ? 0 : 1;
@@ -274,6 +274,25 @@ void mainMenu(){
             bg = COLOR_WHITE;
             ml3.layer->color=COLOR_BLACK;
             fieldLayer.color=COLOR_BLACK;
+        }
+        
+        if(swSD2){
+            bgColor = COLOR_ORANGE;
+            colorBall = COLOR_BLUE;
+            colorScoreBoard = COLOR_BLUE;
+            bg = COLOR_ORANGE;
+            ml3.layer->color=COLOR_BLUE;
+            fieldLayer.color=COLOR_BLUE;
+        }
+        
+        if(swSD3){
+            bgColor = COLOR_GREEN;
+            colorBall = COLOR_BLACK;
+            colorScoreBoard = COLOR_BLACK;
+            bg = COLOR_GREEN;
+            ml3.layer->color=COLOR_BLACK;
+            fieldLayer.color=COLOR_WHITE;
+            
         }
         
         if(swSD4)
@@ -339,14 +358,7 @@ void main()
       mlAdvance(&dPly2, &fieldFence);
     }
     
-//     if(swSD1 && swSD2){
-//         clearScreen(COLOR_RED);
-//         drawString5x7(50,5, "FATALITY", COLOR_WHITE, COLOR_BLACK);
-//         __delay_cycles(1600000);
-//         goto begin;
-//         
-//     }
-
+    
     if(swSD3){
       movLayerDraw(&uPly1, &player1);
       mlAdvance(&uPly1, &fieldFence);
