@@ -374,14 +374,15 @@ void main()
     if(swSD1) 
         P1MovUp();
 
-    if(swSD2) 
+    else if(swSD2) 
         P1MovDown(); 
     
-    if(swSD3)
+    else if(swSD3)
         P2MovUp();
     
-    if(swSD4)
+    else if(swSD4)
         P2MovDown();
+    
     
 
     
