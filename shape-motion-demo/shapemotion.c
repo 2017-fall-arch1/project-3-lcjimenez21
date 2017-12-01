@@ -365,8 +365,8 @@ void main()
     redrawScreen = 0;
     movLayerDraw(&ml3, &player1);
 
-    movePlayer();
-    /*swSD1 = (P2IN & BIT0) ? 0 : 1;
+    //movePlayer();
+    swSD1 = (P2IN & BIT0) ? 0 : 1;
     swSD2 = (P2IN & BIT1) ? 0 : 1;
     swSD3 = (P2IN & BIT2) ? 0 : 1;
     swSD4 = (P2IN & BIT3) ? 0 : 1; 
@@ -378,10 +378,11 @@ void main()
         P1MovDown(); 
     
     if(swSD3)
-        P2MovUp(); 
+        P2MovUp();
     
-    if(swSD4) 
-        P2MovDown();*/ 
+    if(swSD4)
+        P2MovDown();
+    
 
     
   }
