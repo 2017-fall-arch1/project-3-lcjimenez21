@@ -82,8 +82,8 @@ main()
   pcol = (width>>1);
   prow = (height>>1);
   
-  clearScreen(COLOR_BLUE);
-  drawString5x7((width>>1) - 20, 20, "Arena", COLOR_GREEN, COLOR_RED);
+  clearScreen(COLOR_GREEN);
+  drawString5x7((width>>1) - 20, 20, "Arena", COLOR_BLUE, COLOR_RED);
   
   drawArena();
   fillCircle(pcol, prow, RADIUS, chords14, COLOR_RED);

@@ -5,14 +5,14 @@
 
 AbRect rect10 = {abRectGetBounds, abRectCheck, {10,10}};; /**< 10x10 rectangle */
 
-u_int bgColor = COLOR_BLUE;
+u_int bgColor = COLOR_BLACK;
 
 
 Layer layer1 = {		/**< Layer with a red square */
-  (AbShape *)&rect10,
-  {screenWidth/2, screenHeight/2}, /**< center */
+  (AbShape *)&circle10,
+  {screenWidth+2, screenHeight/2}, /**< center */
   {0,0}, {0,0},				    /* next & last pos */
-  COLOR_RED,
+  COLOR_WHITE,
   0
 };
 
@@ -30,7 +30,7 @@ main()
   configureClocks();
   lcd_init();
 
-  clearScreen(COLOR_BLUE);
+  clearScreen(COLOR_BLACK);
   drawString5x7(20,20, "hello", COLOR_GREEN, COLOR_RED);
 
   layerDraw(&layer0);

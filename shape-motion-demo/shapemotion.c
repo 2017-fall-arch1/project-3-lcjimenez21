@@ -13,33 +13,32 @@
 #include <p2switches.h>
 #include <shape.h>
 #include <abCircle.h>
+#include "buzzer.h"
 
 #define GREEN_LED BIT6
+static char P1 ='0';
+static char P2 ='0';
+int swSD1, swSD2, swSD3, swSD4, p1val;
+int colorBall , colorScoreBoard, bg;
+Region player1Fence;
+Region player2Fence;
 
-
-AbRect rect10 = {abRectGetBounds, abRectCheck, {10,10}}; /**< 10x10 rectangle */
-AbRArrow rightArrow = {abRArrowGetBounds, abRArrowCheck, 30};
+AbRect rect10 = {abRectGetBounds, abRectCheck, {1,13}}; /**< 10x10 rectangle */
 
 AbRectOutline fieldOutline = {	/* playing field */
   abRectOutlineGetBounds, abRectOutlineCheck,   
-  {screenWidth/2 - 10, screenHeight/2 - 10}
+  {screenWidth/2 - 3, screenHeight/2 - 3}
 };
 
-Layer layer4 = {
-  (AbShape *)&rightArrow,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
-  {0,0}, {0,0},				    /* last & next pos */
-  COLOR_PINK,
-  0
-};
-  
 
-Layer layer3 = {		/**< Layer with an orange circle */
-  (AbShape *)&circle8,
+
+
+Layer gameBall = {		/**< Layer with an orange circle */
+  (AbShape *)&circle2,
   {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
   {0,0}, {0,0},				    /* last & next pos */
-  COLOR_VIOLET,
-  &layer4,
+  COLOR_GREEN,
+  0,
 };
 
 
@@ -47,25 +46,28 @@ Layer fieldLayer = {		/* playing field as a layer */
   (AbShape *) &fieldOutline,
   {screenWidth/2, screenHeight/2},/**< center */
   {0,0}, {0,0},				    /* last & next pos */
-  COLOR_BLACK,
-  &layer3
+  COLOR_WHITE,
+  &gameBall
 };
 
-Layer layer1 = {		/**< Layer with a red square */
+
+Layer player2 = {		/**< Layer of paddle right */
+  //(AbShape *)&layer1Outline,
   (AbShape *)&rect10,
-  {screenWidth/2, screenHeight/2}, /**< center */
+  {(screenWidth/2)-57, (screenHeight/2)+10}, /**< center */
   {0,0}, {0,0},				    /* last & next pos */
   COLOR_RED,
   &fieldLayer,
 };
 
-Layer layer0 = {		/**< Layer with an orange circle */
-  (AbShape *)&circle14,
-  {(screenWidth/2)+10, (screenHeight/2)+5}, /**< bit below & right of center */
+Layer player1 = {		/**< Layer of paddle left */
+  (AbShape *)&rect10,
+  {(screenWidth/2)+57, (screenHeight/2)-10}, /**< center */
   {0,0}, {0,0},				    /* last & next pos */
-  COLOR_ORANGE,
-  &layer1,
+  COLOR_RED,
+  &player2,
 };
+
 
 /** Moving Layer
  *  Linked list of layer references
@@ -78,9 +80,14 @@ typedef struct MovLayer_s {
 } MovLayer;
 
 /* initial value of {0,0} will be overwritten */
-MovLayer ml3 = { &layer3, {1,1}, 0 }; /**< not all layers move */
-MovLayer ml1 = { &layer1, {1,2}, &ml3 }; 
-MovLayer ml0 = { &layer0, {2,1}, &ml1 }; 
+
+MovLayer ml3 = { &gameBall, {2,1}, 0 };
+
+MovLayer uPly2 = {&player2, {0,-3}, 0};
+MovLayer dPly2 = {&player2, {0,3}, 0};
+
+MovLayer uPly1 = {&player1, {0,-3}, 0};
+MovLayer dPly1 = {&player1, {0,3}, 0};
 
 void movLayerDraw(MovLayer *movLayers, Layer *layers)
 {
@@ -133,49 +140,179 @@ void mlAdvance(MovLayer *ml, Region *fence)
   Vec2 newPos;
   u_char axis;
   Region shapeBoundary;
+  
   for (; ml; ml = ml->next) {
     vec2Add(&newPos, &ml->layer->posNext, &ml->velocity);
     abShapeGetBounds(ml->layer->abShape, &newPos, &shapeBoundary);
+    
     for (axis = 0; axis < 2; axis ++) {
-      if ((shapeBoundary.topLeft.axes[axis] < fence->topLeft.axes[axis]) ||
-	  (shapeBoundary.botRight.axes[axis] > fence->botRight.axes[axis]) ) {
-	int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
-	newPos.axes[axis] += (2*velocity);
+      if(shapeBoundary.topLeft.axes[axis] < fence->topLeft.axes[axis]){
+        newPos.axes[axis] += 3;
       }	/**< if outside of fence */
+      
+      if(shapeBoundary.botRight.axes[axis] > fence->botRight.axes[axis]){
+        newPos.axes[axis] -= 2;
+      }
+    } /**< for axis */
+    ml->layer->posNext = newPos;
+  } /**< for ml */
+}
+
+void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
+{
+  Vec2 newPos;
+  Vec2 posPlayer2;
+  Vec2 posPlayer1;
+  u_char axis;
+  Region shapeBoundary; 
+ 
+  for (; ml; ml = ml->next) {
+    vec2Add(&newPos, &ml->layer->posNext, &ml->velocity);
+    abShapeGetBounds(ml->layer->abShape, &newPos, &shapeBoundary);
+    
+    vec2Add(&posPlayer2, &mlP2 ->layer->posNext, &mlP2 -> velocity);
+    abShapeGetBounds(mlP2->layer->abShape, &posPlayer2, &player2Fence);
+     
+    vec2Add(&posPlayer1, &mlP1 ->layer->posNext, &mlP1 -> velocity);
+    abShapeGetBounds(mlP1->layer->abShape, &posPlayer1, &player1Fence);
+    
+    for (axis = 0; axis < 2; axis ++) {
+
+      if ((shapeBoundary.topLeft.axes[axis] < fence->topLeft.axes[axis]) || //gameBall bounce
+	  (shapeBoundary.botRight.axes[axis] > fence->botRight.axes[axis]) ){
+        int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
+        newPos.axes[axis] += (2*velocity);
+        if (shapeBoundary.topLeft.axes[0] < fence->topLeft.axes[0]){
+            P1++;
+            if(P1 == '8'){
+                clearScreen(COLOR_WHITE);    
+                drawString5x7(25,50, "Winner P2", COLOR_BLACK, COLOR_WHITE);
+                __delay_cycles(10000000);
+                P1 = '0';
+                WDTCTL =0;
+            }
+            goalPlay();
+            drawString5x7(50,50, "GOAL", COLOR_GREEN, COLOR_BLACK);
+            __delay_cycles(15000000);
+            break;
+      }
+      
+      if(shapeBoundary.botRight.axes[0] > fence->botRight.axes[0]){
+          P2++;  
+          if(P2 == '8'){
+              clearScreen(COLOR_WHITE);    
+              drawString5x7(25,50, "Winner P1", COLOR_BLACK, COLOR_WHITE);
+              __delay_cycles(10000000);
+              P2 = '0';
+              WDTCTL=0;
+          }
+          goalPlay();
+          drawString5x7(50,50, "GOAL", COLOR_GREEN, COLOR_BLACK);
+          __delay_cycles(15000000);
+          break;
+      }
+      break;
+      }	/**< if outside of fence */
+
+      //Player 2(Left side) bounce
+      if((shapeBoundary.topLeft.axes[0] < player2Fence.botRight.axes[0]) &&
+        (shapeBoundary.botRight.axes[1]-11 < player2Fence.botRight.axes[1])
+        && (shapeBoundary.topLeft.axes[1]+11 > player2Fence.topLeft.axes[1])){
+        play();
+        int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
+        newPos.axes[axis] += (2*velocity);
+        break;
+      }
+
+      //Player 1(Right side) bounce
+      if((shapeBoundary.botRight.axes[0] > player1Fence.topLeft.axes[0]) &&
+        (shapeBoundary.botRight.axes[1]-11 < player1Fence.botRight.axes[1])
+        && (shapeBoundary.topLeft.axes[1]+11 > player1Fence.topLeft.axes[1])){
+        int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
+        newPos.axes[axis] += (2*velocity);
+        play();
+        break;
+      }
+      
     } /**< for axis */
     ml->layer->posNext = newPos;
   } /**< for ml */
 }
 
 
-u_int bgColor = COLOR_BLUE;     /**< The background color */
+
+
+u_int bgColor = COLOR_BLACK;     /**< The background color */
 int redrawScreen = 1;           /**< Boolean for whether screen needs to be redrawn */
 
 Region fieldFence;		/**< fence around playing field  */
 
 
+
 /** Initializes everything, enables interrupts and green LED, 
  *  and handles the rendering for the screen
  */
+
+void mainMenu(){
+    int a = 1;
+    
+    clearScreen(COLOR_WHITE);
+    drawString5x7(35,5, "ARCH PONG", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(25,25, "P1 controls", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(15,35, "S1 Up, S2 Down", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(25,60, "P2 controls", COLOR_BLACK, COLOR_WHITE); 
+    drawString5x7(15,70, "S3 Up, S4 Down", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,105, "Select Theme:", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(1,118, "S1(B/W) S2(Mid) S3(Old)", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(15,130, "Press S4 to Start", COLOR_BLACK, COLOR_WHITE);
+    while(a){
+        swSD1 = (P2IN & BIT0) ? 0 : 1;
+        swSD2 = (P2IN & BIT1) ? 0 : 1;
+        swSD3 = (P2IN & BIT2) ? 0 : 1;
+        swSD4 = (P2IN & BIT3) ? 0 : 1;
+        if(swSD1){
+            bgColor = COLOR_WHITE;
+            colorBall = COLOR_BLACK;
+            colorScoreBoard = COLOR_BLACK;
+            bg = COLOR_WHITE;
+            ml3.layer->color=COLOR_BLACK;
+        }
+        
+        if(swSD4)
+            a =0;
+    }
+    
+    
+}
+
+void gameScore()
+{
+  drawString5x7(50,5, "SCORE", colorScoreBoard, bg);
+  drawChar5x7(25, 5, P2 , colorScoreBoard, bg);
+  drawChar5x7(100, 5, P1 , colorScoreBoard, bg); 
+}
+
+
 void main()
 {
   P1DIR |= GREEN_LED;		/**< Green led on when CPU on */		
   P1OUT |= GREEN_LED;
-
+  
   configureClocks();
   lcd_init();
   shapeInit();
   p2sw_init(1);
-
+  
+  buzzer_init();
   shapeInit();
+  
+  mainMenu();
 
-  layerInit(&layer0);
-  layerDraw(&layer0);
-
+  begin: layerInit(&player1);
+  layerDraw(&player1);
 
   layerGetBounds(&fieldLayer, &fieldFence);
-
-
+  
   enableWDTInterrupts();      /**< enable periodic interrupt */
   or_sr(0x8);	              /**< GIE (enable interrupts) */
 
@@ -187,7 +324,42 @@ void main()
     }
     P1OUT |= GREEN_LED;       /**< Green led on when CPU on */
     redrawScreen = 0;
-    movLayerDraw(&ml0, &layer0);
+    movLayerDraw(&ml3, &player1);
+    swSD1 = (P2IN & BIT0) ? 0 : 1;
+    swSD2 = (P2IN & BIT1) ? 0 : 1;
+    swSD3 = (P2IN & BIT2) ? 0 : 1;
+    swSD4 = (P2IN & BIT3) ? 0 : 1;
+    
+    
+    if(swSD1){
+      movLayerDraw(&uPly2, &player2);
+      mlAdvance(&uPly2, &fieldFence);
+    }
+
+    if(swSD2){
+      movLayerDraw(&dPly2, &player2);
+      mlAdvance(&dPly2, &fieldFence);
+    }
+    
+//     if(swSD1 && swSD2){
+//         clearScreen(COLOR_RED);
+//         drawString5x7(50,5, "FATALITY", COLOR_WHITE, COLOR_BLACK);
+//         __delay_cycles(1600000);
+//         goto begin;
+//         
+//     }
+
+    if(swSD3){
+      movLayerDraw(&uPly1, &player1);
+      mlAdvance(&uPly1, &fieldFence);
+    }
+
+    if(swSD4){
+      movLayerDraw(&dPly1, &player1);
+      mlAdvance(&dPly1, &fieldFence);
+    }
+
+    
   }
 }
 
@@ -197,11 +369,12 @@ void wdt_c_handler()
   static short count = 0;
   P1OUT |= GREEN_LED;		      /**< Green LED on when cpu on */
   count ++;
-  if (count == 15) {
-    mlAdvance(&ml0, &fieldFence);
-    if (p2sw_read())
-      redrawScreen = 1;
+  if (count == 4) {
+    mlAdvanceNew(&ml3, &uPly1, &uPly2, &fieldFence);
+    redrawScreen = 1;
     count = 0;
+    buzzer_set_period(0);
+    gameScore();
   } 
   P1OUT &= ~GREEN_LED;		    /**< Green LED off when cpu off */
 }

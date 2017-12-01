@@ -14,7 +14,7 @@ Layer layer2 = {
   (AbShape *)&arrow30,
   {screenWidth/2+40, screenHeight/2+10}, 	    /* position */
   {0,0}, {0,0},				    /* last & next pos */
-  COLOR_BLACK,
+  COLOR_WHITE,
   0,
 };
 Layer layer1 = {
@@ -33,7 +33,7 @@ Layer layer0 = {
 };
 
 
-u_int bgColor = COLOR_BLUE;
+u_int bgColor = COLOR_BLACK;
 
 int
 main()
@@ -43,8 +43,8 @@ main()
   shapeInit();
   Vec2 rectPos = screenCenter, circlePos = {30,screenHeight - 30};
 
-  clearScreen(COLOR_BLUE);
-  drawString5x7(20,20, "hello", COLOR_GREEN, COLOR_RED);
+  clearScreen(COLOR_WHITE);
+  drawString5x7(20,20, "hello", COLOR_BLACK, COLOR_WHITE);
   shapeInit();
   
   layerInit(&layer0);
