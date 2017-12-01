@@ -14,11 +14,12 @@
 #include <shape.h>
 #include <abCircle.h>
 #include "buzzer.h"
+#include "movementPads.h"
 
 #define GREEN_LED BIT6
 static char P1 ='0';
 static char P2 ='0';
-int swSD1, swSD2, swSD3, swSD4, p1val;
+int swSD1, swSD2, swSD3, swSD4;
 int colorBall , colorScoreBoard, bg;
 Region player1Fence;
 Region player2Fence;
@@ -262,6 +263,7 @@ void mainMenu(){
     drawString5x7(5,110, "S1(B/W) S2(UTEP)", COLOR_BLACK, COLOR_WHITE);
     drawString5x7(5,125, "S3(Soccer)", COLOR_BLACK, COLOR_WHITE);
     drawString5x7(15,140, "Press S4 to Start", COLOR_BLACK, COLOR_WHITE);
+    
     while(a){
         swSD1 = (P2IN & BIT0) ? 0 : 1;
         swSD2 = (P2IN & BIT1) ? 0 : 1;
@@ -309,6 +311,26 @@ void gameScore()
   drawChar5x7(100, 5, P1 , colorScoreBoard, bg); 
 }
 
+void P1MovUp(){ //function to mov up P1 pad
+    movLayerDraw(&uPly2, &player2);
+    mlAdvance(&uPly2, &fieldFence);
+    
+}
+
+void P1MovDown(){ //function to mov down P1 pad
+    movLayerDraw(&dPly2, &player2);
+    mlAdvance(&dPly2, &fieldFence);
+}
+
+void P2MovUp(){ //function to mov down P2 pad
+    movLayerDraw(&uPly1, &player1);
+    mlAdvance(&uPly1, &fieldFence);
+}
+
+void P2MovDown(){ //function to mov down P2 pad
+    movLayerDraw(&dPly1, &player1);
+    mlAdvance(&dPly1, &fieldFence);
+}
 
 void main()
 {
@@ -342,32 +364,24 @@ void main()
     P1OUT |= GREEN_LED;       /**< Green led on when CPU on */
     redrawScreen = 0;
     movLayerDraw(&ml3, &player1);
-    swSD1 = (P2IN & BIT0) ? 0 : 1;
+
+    movePlayer();
+    /*swSD1 = (P2IN & BIT0) ? 0 : 1;
     swSD2 = (P2IN & BIT1) ? 0 : 1;
     swSD3 = (P2IN & BIT2) ? 0 : 1;
-    swSD4 = (P2IN & BIT3) ? 0 : 1;
+    swSD4 = (P2IN & BIT3) ? 0 : 1; 
     
-    
-    if(swSD1){
-      movLayerDraw(&uPly2, &player2);
-      mlAdvance(&uPly2, &fieldFence);
-    }
+    if(swSD1) 
+        P1MovUp();
 
-    if(swSD2){
-      movLayerDraw(&dPly2, &player2);
-      mlAdvance(&dPly2, &fieldFence);
-    }
+    if(swSD2) 
+        P1MovDown(); 
     
+    if(swSD3)
+        P2MovUp(); 
     
-    if(swSD3){
-      movLayerDraw(&uPly1, &player1);
-      mlAdvance(&uPly1, &fieldFence);
-    }
-
-    if(swSD4){
-      movLayerDraw(&dPly1, &player1);
-      mlAdvance(&dPly1, &fieldFence);
-    }
+    if(swSD4) 
+        P2MovDown();*/ 
 
     
   }

@@ -1,0 +1,21 @@
+	.data
+	.global swSD1		;switch 1
+swSD1:	.word 0x0000		;0
+	
+	.data
+	.global swSD2		;switch 2
+swSD2:	.word 0x0000		;0
+
+	.data
+	.global swSD3		;switch 3
+swSD3:	.word 0x0000		;0
+
+	.data
+	.global swSD4		;switch 4
+swSD4:	.word 0x0000		;0
+
+	
+	cmp &P2IN, &BIT0	;(P2IN && BIT0)
+	jnz if2			;make 1
+	
+	
