@@ -249,10 +249,6 @@ Region fieldFence;		/**< fence around playing field  */
 
 
 
-/** Initializes everything, enables interrupts and green LED, 
- *  and handles the rendering for the screen
- */
-
 void mainMenu(){
     int a = 1;
     
@@ -262,9 +258,10 @@ void mainMenu(){
     drawString5x7(15,35, "S1 Up, S2 Down", COLOR_BLACK, COLOR_WHITE);
     drawString5x7(25,60, "P2 controls", COLOR_BLACK, COLOR_WHITE); 
     drawString5x7(15,70, "S3 Up, S4 Down", COLOR_BLACK, COLOR_WHITE);
-    drawString5x7(5,105, "Select Theme:", COLOR_BLACK, COLOR_WHITE);
-    drawString5x7(1,118, "S1(B/W) S2(Mid) S3(Old)", COLOR_BLACK, COLOR_WHITE);
-    drawString5x7(15,130, "Press S4 to Start", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,90, "Select Theme:", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,110, "S1(B/W) S2(Mid)", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(5,125, "S3(Old)", COLOR_BLACK, COLOR_WHITE);
+    drawString5x7(15,140, "Press S4 to Start", COLOR_BLACK, COLOR_WHITE);
     while(a){
         swSD1 = (P2IN & BIT0) ? 0 : 1;
         swSD2 = (P2IN & BIT1) ? 0 : 1;
@@ -276,6 +273,7 @@ void mainMenu(){
             colorScoreBoard = COLOR_BLACK;
             bg = COLOR_WHITE;
             ml3.layer->color=COLOR_BLACK;
+            fieldLayer.color=COLOR_BLACK;
         }
         
         if(swSD4)
