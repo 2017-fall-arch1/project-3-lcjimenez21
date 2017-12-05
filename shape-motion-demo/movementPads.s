@@ -18,70 +18,59 @@ swSD4:	.byte 0x00		;0
 
 	.data
 	.global bit0		;BIT0
-bit0:	.byte 0x00
-
+bit0:	.byte 0x01
+	
 	.data
-	.global bit0		;BIT1
+	.global bit1		;BIT1
 bit1:	.byte 0x02
 
 	.data
-	.global bit0		;BIT2
+	.global bit2		;BIT2
 bit2:	.byte 0x04
 
 	.data
-	.global bit0		;BIT3
+	.global bit3		;BIT3
 bit3:	.byte 0x08
 	
 	
 	.text
-	.global movePlayer
-movePlayer:
+	.global movePlayers
+movePlayers:
 
-	cmp.b &P2IN, &bit0 	;(P2IN & BIT0)
-	jz ifS2press		;button S1 not press check next button
-	mov #1, &swSD1		;button S1 press
-	jmp endSwitch		;go to end of comparison
+	bit.b &bit0, &P2IN	;(P2IN & BIT0)
+	mov #0, &swSD1		;if S1 is not press make equal to 0
+	jnz ifS2press		;button S1 not press check next button
+	mov #1, &swSD1 		;button S1 press
+	call #P1MovUp		;call the move up method for P1
+	jmp ifS2press		;go to next button 
 
 ifS2press:
-	cmp.b &P2IN, &bit1	;(P2IN & BIT1)
-	jz ifS3press		;button S2 not press check next button
-	mov #1, &swSD2		;button S2 press
-	jmp endSwitch		;go to end of comparison
-
+	
+	bit.b &bit1, &P2IN	;(P2IN & BIT1)
+	mov #0, &swSD2		;if S2 is not press make equal to 0
+	jnz ifS3press		;button S2 not press check next button end
+	mov #1, &swSD2 		;button S2 press make equal to 1
+	call #P1MovDown		;;call the move down method for P1
+	jmp ifS3press		;go to next button 
 
 ifS3press:
-	cmp.b &P2IN, &bit2	;(P2IN & BIT2)
-	jz ifS4press		;button S3 not press check next button
-	mov #1, &swSD3		;button S3 press
-	jmp endSwitch		;go to end of comparison
 
+	bit.b &bit2, &P2IN	;(P2IN & BIT2)
+	mov #0, &swSD3		;if S3 is not press make equal to 0
+	jnz ifS4press		;button S3 not press check next button
+	mov #1, &swSD3 		;button S3 press
+	call #P2MovUp		;call the move up method for P2
+	jmp ifS4press		;go to next button
 
-	
 ifS4press:
-	cmp.b &P2IN, &bit3	;(P2IN & BIT3)
-	jz endSwitch		;No button was px2_ress
-	mov #1, &swSD4		;button S4 press
-
-
-endSwitch:	
 	
-	cmp.b #1, &swSD1	;check that S1 was press
-	jnz if2 		;if not check next button
-	call #P1MovUp		;call method to move the Player1 Up
-	ret 
-	
-if2:	cmp.b #1, &swSD2	;check that S2 was press
-	jnz if3 		;if not check next button
-	call #P1MovDown		;call method to move the Player2 Down
-	ret 
+	bit.b &bit3, &P2IN	;(P2IN & BIT3)
+	mov #0, &swSD4		;if S4 is not press make equal to 0
+	jnz done		;button S4 not press check next button end
+	mov #1, &swSD4 		;button S4 press make equal to 1
+	call #P2MovDown		;;call the move down method for P2
+	jmp done		;go to end 
 
-if3:	cmp.b #1, &swSD3	;check that S3 was press
-	jnz if4 		;if not check next button
-	call #P2MovUp		;call method to move the Player2 Up
-	ret 
 
-if4:	cmp.b #1, &swSD4	;check that S4 was press
-	jnz  done		;if no bottom was press your done
-	call #P2MovDown		;call method to move the Player2 Down
 
-done:	ret 
+done:	pop 0

@@ -322,7 +322,7 @@ void P1MovDown(){ //function to mov down P1 pad
     mlAdvance(&dPly2, &fieldFence);
 }
 
-void P2MovUp(){ //function to mov down P2 pad
+void P2MovUp(){ //function to mov up P2 pad
     movLayerDraw(&uPly1, &player1);
     mlAdvance(&uPly1, &fieldFence);
 }
@@ -365,27 +365,8 @@ void main()
     redrawScreen = 0;
     movLayerDraw(&ml3, &player1);
 
-    //movePlayer();
-    swSD1 = (P2IN & BIT0) ? 0 : 1;
-    swSD2 = (P2IN & BIT1) ? 0 : 1;
-    swSD3 = (P2IN & BIT2) ? 0 : 1;
-    swSD4 = (P2IN & BIT3) ? 0 : 1; 
-    
-    if(swSD1) 
-        P1MovUp();
-
-    else if(swSD2) 
-        P1MovDown(); 
-    
-    else if(swSD3)
-        P2MovUp();
-    
-    else if(swSD4)
-        P2MovDown();
-    
-    
-
-    
+    movePlayers();
+   
   }
 }
 
