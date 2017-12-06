@@ -186,7 +186,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
         if (shapeBoundary.topLeft.axes[0] < fence->topLeft.axes[0]){
             P1++;
             if(P1 == '8'){
-                clearScreen(COLOR_WHITE);    
+                clearScreen(COLOR_WHITE);    //once the winner is decided screen turns white with the winner and takes you back to the main menu
                 drawString5x7(25,50, "Winner P2", COLOR_BLACK, COLOR_WHITE);
                 __delay_cycles(10000000);
                 P1 = '0';
@@ -199,9 +199,9 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
       }
       
       if(shapeBoundary.botRight.axes[0] > fence->botRight.axes[0]){
-          P2++;  
+          P2++;  //everytime you hit the wall point added to player 1
           if(P2 == '8'){
-              clearScreen(COLOR_WHITE);    
+              clearScreen(COLOR_WHITE); //once the winner is decided screen turns white with the winner and takes you back to the main menu
               drawString5x7(25,50, "Winner P1", COLOR_BLACK, COLOR_WHITE);
               __delay_cycles(10000000);
               P2 = '0';
@@ -212,7 +212,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
           __delay_cycles(15000000);
           break;
       }
-      break;
+      break; //this break would allow the ball to change direction once it hits the wall 
       }	/**< if outside of fence */
 
       //Player 2(Left side) bounce
@@ -222,7 +222,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
         play();
         int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
         newPos.axes[axis] += (2*velocity);
-        break;
+        break; //this allows collision with Player 1
       }
 
       //Player 1(Right side) bounce
@@ -232,7 +232,7 @@ void mlAdvanceNew(MovLayer *ml, MovLayer *mlP1, MovLayer *mlP2,  Region *fence)
         int velocity = ml->velocity.axes[axis] = -ml->velocity.axes[axis];
         newPos.axes[axis] += (2*velocity);
         play();
-        break;
+        break; //this allows collision with Player 2
       }
       
     } /**< for axis */
@@ -250,7 +250,7 @@ Region fieldFence;		/**< fence around playing field  */
 
 
 
-void mainMenu(){
+void mainMenu(){ //the intial menu were you can customized your game experience 
     int a = 1;
     
     clearScreen(COLOR_WHITE);
@@ -304,7 +304,7 @@ void mainMenu(){
     
 }
 
-void gameScore()
+void gameScore() //basic method to keep count of the score
 {
   drawString5x7(50,5, "SCORE", colorScoreBoard, bg);
   drawChar5x7(25, 5, P2 , colorScoreBoard, bg);
@@ -380,8 +380,8 @@ void wdt_c_handler()
     mlAdvanceNew(&ml3, &uPly1, &uPly2, &fieldFence);
     redrawScreen = 1;
     count = 0;
-    buzzer_set_period(0);
-    gameScore();
+    buzzer_set_period(0);       //to turn off the sound after it hits the wall, you score, or hit the paddle
+    gameScore();                //so the score can't be erase
   } 
   P1OUT &= ~GREEN_LED;		    /**< Green LED off when cpu off */
 }

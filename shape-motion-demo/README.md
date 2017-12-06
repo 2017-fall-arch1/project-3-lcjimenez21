@@ -1,89 +1,45 @@
-# Project 3: LCD Game
+# Project 3: Arch Pong
 ## Introduction
 
-Continuing your effort to help ACME Solutions provide Christmas toys, 
-your task is now to develop a game for the LCD screen.  You should 
-utilize the knowledge you havegained working with the buttons and 
-buzzer.  In addition, a series of libraries have been found to assist
-you in creating your game.
+For this assignment we had to create a game using the LCD display on the msp430, and the game that I selected was pong. 
 
-Students can propose alternate projects that demonstrate
-similar skills.  These proposals must approved by the course
-instructor in writing (e.g. email) at least two weeks before the
-project due date. 
+## shape-motion-demo
+Here everything would take place in order to create the pong game. First all from the code provide to us I got the shape motion to understand better collision and movement, from there I just alter that code so it would fit the necessities of the game, then in order to make a sound when you score or when the ball hits the pad I reused some code from last assingment to make those sounds.
 
-## Requirements
-Your game should meet the following minimum criteria:
+Lastly as the instructions for the assignment stated I created assembly code to move the players called movementPads.s, in file I basically define 4 global variables that would store either a 1 or 0 (representing on and off) to be use in a series of comparisons (bits comparisons) so if the button is press depending of which it would call the function to move either up and down for both players. 
 
-- dynamically render graphical elements that move
--- including one original algorithmically rendered graphical element 
-- handle colisions properly with other shapes and area boundaries
-- produce sounds triggered by game events
--- in a manner that does not cause the game to pause
-- communicate with the player using text
-- include a state machine written in assembly language
-- respond to user input (from buttons)
+## Additional information
+The actual project is inside the shape-motion-demo folder, where the changes took place to create this Arch pong game. So to run the pong game you must use the shape-motion-demo folder.
 
-Don't forget to properly document your source code and how to play the game.
+## Instructions
+To play the game:
 
-## Grading Criteria
+- On the main menu S1, S2, S3 let's customize the theme of the game
+- Once a theme has been selected just press S4 to start playing 
+- S1 moves Player 1 go up
+- S2 moves Player 1 down
+- S3 moves Player 2 go up
+- S4 moves Player 2 down
+- The game is up to 8 points, so the first to score 8 wins!
+- After the game is over you would be taken back to the main menu to play again
 
-Your lab will be graded based on the proficiencies it demonstrates.
-While we appreciate the complexity of an
-arcade quality game, our primary objective is that you demonstrate
-course-relevant skills including
+## Game program
 
-- relevant development tools such as make and emacs
-- use of timer interrupts to control program timing
-- use of switch interrupts to determine when swiches change
-- modularization into multiple source files (including header files)
-- use of explicit state machines to implement program functionality
-- ability to develop or modify (and of course use) linked data structures in c
-- mature programming
--- readable, appropriate algorithms, modularization, data structures, symbol names etc
+To run the the game we would have to go to the shape-motion-demo folder then once inside the folder
 
-Below is an example of a sample "pong" application that would fully satisfy
-requirments.  The graphics would include
+To compile:
+~~~
+$ make
+~~~
 
-- an arena to play in
-- a ball
-- two paddles (using a shape of your own design)
-- a score
+To load the game into the msp430, try:
+~~~
+$ make load
+~~~
 
-And behaviors that include
-
-- the ball moves in 2d, with direction changing when it collides with
-  screen elements
-- a sound plays when a collision occurs
--- without causing the ball's motion to pause
-- scores
- - that advance through multiple rounds of play
- - that the ball either moves in-front-of or behind
-
-## Libraries
-
-Several libraries are provided.  
-They can be installed by the default production of Makefile in the repostiory's 
-root directory, or by a "$make install" in each of their subdirs.
-
-- timerLib: Provides code to configure Timer A to generate watchdog timer interrupts at 250 Hz
-
-- p2SwLib: Provides an interrupt-driven driver for the four switches on the LCD board and a demo program illustrating its intended functionality.
-
-- lcdLib: Provides low-level lcd control primitives, defines several fonts, 
-and a simple demo program that uses them.
-
-- shapeLib: Provides an translatable model for shapes that can be translated 
-and rendered as layers.
-
-- circleLib: Provides a circle model as a vector of demi-chord lengths,
-pre-computed circles as layers with a variety of radii, 
-and a demonstration program that renders a circle.
-
-
-## Demonstration program
-
-- shape-motion-demo: A demonstration program that uses shapeLib to represent
-and render shapes that move.
+To delete:
+~~~
+$ make clean
+~~~
 
 
